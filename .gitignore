@@ -1,0 +1,8 @@
+.metadata/
+.classpath
+.project
+.DS_Store
+bin/
+BSTTest.java
+tree/Node.java
+StackTest.java
