@@ -1,5 +1,6 @@
 package tree;
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 public class BST<T extends Comparable<T>> {
@@ -20,17 +21,7 @@ public class BST<T extends Comparable<T>> {
 		this.root = null;
 	}
 	
-	public T iterSearch(T target) {
-		Node curr = root;
-		while (curr != null) {
-			int cmp = target.compareTo(curr.key);
-			if (cmp == 0) {
-				return curr.key;
-			}
-			curr = cmp < 0 ? curr.left : curr.right;
-		}
-		return null;
-	}
+
 	
 	public void insert(T key) throws IllegalArgumentException {
 		root = insert(root, key);
@@ -73,12 +64,25 @@ public class BST<T extends Comparable<T>> {
 		
 	}
 	
+	// Iterative search for target
+	public T iterSearch(T target) {
+		Node curr = root;
+		while (curr != null) {
+			int cmp = target.compareTo(curr.key);
+			if (cmp == 0) {
+				return curr.key;
+			}
+			curr = cmp < 0 ? curr.left : curr.right;
+		}
+		return null;
+	}
+	
+	// Recursive search for target
 	public T search(T target) {
 		return search(root, target);
 	}
 	
-	// Returns the object so that it can be used, instead of just the comparison value
-	// i.e. imagine a student object, may be compared by id, but you want to use the name of the result
+
 	public T search(Node root, T target) {
 		if (root == null) {
 			return null;
@@ -91,14 +95,8 @@ public class BST<T extends Comparable<T>> {
 		
 	}
 	
-	public T recursiveDelete(Node root, T key) {
-		if (root == null) {
-			throw new NoSuchElementException(key + " is not in the tree");
-		}
 
-		
-	}
-	
+	// Iterative delete
 	public T delete(T key) {
 		if (root == null) { // Tree is empty
 			throw new NoSuchElementException(key + " is not in the tree");
@@ -144,4 +142,120 @@ public class BST<T extends Comparable<T>> {
 		}
 		return target.key;
 	}
+	
+	// Recursive delete target
+	public T recDelete(T key) {
+		return recDelete(root, key);
+	}
+	
+	private T recDelete(Node root, T key) {
+		Node deletedTree = recursiveDelete(root, key);
+		if (deletedTree == null) return null;
+		else return deletedTree.key;
+	}
+	
+	private Node recursiveDelete(Node root, T key) {
+		if (root == null) {
+			throw new NoSuchElementException(key + " is not in the tree");
+		}
+		int cmp = key.compareTo(root.key);
+		if (cmp < 0) {
+			root.left = recursiveDelete(root.left, key);
+		} else if (cmp > 0) {
+			root.right = recursiveDelete(root.right, key);
+		} else {
+			if (root.right == null) return root.left;
+			if (root.left == null) return root.right;
+			T x = max(root.left);
+			root.left = deleteMax(root.left);
+			root.key = x;
+		}
+		return root;
+	}
+	
+	public T max(Node root) {
+		if (root == null) {
+			return null;
+		}
+		if (root.right == null) return root.key;
+		return max(root.right);
+	}
+	
+	public Node deleteMax(Node root) {
+		if (root == null) return null;
+		if (root.right == null) {
+			return root.left;
+		}
+		root.right = deleteMax(root.right);
+		return root;
+	}
+	
+	
+	// Reverse order of tree
+	public void reverse() {
+		root = recursiveReverse(root);
+	}
+	
+	public Node recursiveReverse(Node root) {
+		if (root == null) {
+			return null;
+		}
+		Node temp = root.left;
+		root.left = root.right;
+		root.right = temp;
+		root.left = recursiveReverse(root.left);
+		root.right = recursiveReverse(root.right);
+		return root;
+	}
+	
+	
+	public void printLeft() {
+		Node trav = root;
+		while (trav != null) {
+			System.out.print(trav.key + " -> ");
+			trav = trav.left;
+		}
+		System.out.println();
+	}
+
+	public void printRight() {
+		Node trav = root;
+		while (trav != null) {
+			System.out.print(trav.key + " -> ");
+			trav = trav.right;
+		}
+		System.out.println();
+	}
+	
+	// Accumulates, in a given array list, all entries in a BST whose keys are in a given range,
+    // including both ends of the range - i.e. all entries x such that min <= x <= max. 
+    // The accumulation array list, result, will be filled with node data entries that make the cut. 
+    // The array list is already created (initially empty) when this method is first called.
+	public void keysInRange(T min, T max, ArrayList<T> result) {
+		keysInRange(root, min, max, result);
+	}
+	
+    public void keysInRange(Node root, T min, T max, ArrayList<T> result) {
+        if (root == null) return; 
+        int cmpMin = root.key.compareTo(min);
+        int cmpMax = root.key.compareTo(max);
+        if (cmpMin >= 0 && cmpMax <= 0) result.add(root.key);
+        if (cmpMin > 0) keysInRange(root.left, min, max, result);
+        if (cmpMax < 0) keysInRange(root.right, min, max, result);
+     }
+    
+    // Find k'th largest entry in BST
+    // Requires a rightSize field in Node that holds the number of right child nodes
+    public T kthLargest(Node root, int k) {
+    	if (root == null) {
+    		return null;
+    	}
+    	if (root.rightSize == k - 1) {
+    		return root.key;
+    	}
+    	if (root.rightSize < k - 1) {
+    		return kthLargest(root.left, k - root.rightSize - 1);
+    	}
+    	return kthLargest(root.right, k);
+     }
 }
