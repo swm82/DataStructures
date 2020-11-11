@@ -1,3 +1,4 @@
+.settings/
 .metadata/
 .classpath
 .project
@@ -6,3 +7,5 @@ bin/
 BSTTest.java
 tree/Node.java
 StackTest.java
+Exam.java
+HeapTest.java
